@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- Makes the page fit phone screens instead of shrinking to desktop width -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A bouquet for you</title>
+  <meta name="description" content="A little bouquet, just for you.">
+  <meta name="theme-color" content="#000000">
+  <!-- Asks search engines not to list this page. It is only a request:
+       anyone who has the link can still open it. -->
+  <meta name="robots" content="noindex">
+  <!-- A bouquet emoji as the tab icon (no extra file needed) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💐</text></svg>">
+
+  <!-- Step 1 of linking: load the styles. This must be in the <head>. -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- HEARTS LAYER: script.js adds floating hearts in here.
+       aria-hidden hides this decoration from screen readers. -->
+  <div id="hearts" aria-hidden="true"></div>
+
+  <!-- BURST LAYER: the flowers that shoot out when the gift opens -->
+  <div id="burst" aria-hidden="true"></div>
+
+  <!-- GIFT: the first thing the person sees. It is a <button> (not a div)
+       so it works with keyboards and screen readers for free. -->
+  <button id="gift" type="button" aria-label="Open your gift">
+    <div class="box">
+      <div class="lid"></div>
+      <div class="base"></div>
+    </div>
+    <p>Tap to open your gift</p>
+  </button>
+
+  <!-- MUTE BUTTON: hidden until the gift is opened -->
+  <button id="mute" type="button" aria-label="Mute music">🔊</button>
+
+  <!-- SCENE: the bouquet and the message card. Hidden until the gift opens. -->
+  <main id="scene">
+    <div id="bouquet-wrap">
+      <!-- The bouquet shapes are drawn into this <svg> by script.js.
+           viewBox sets its internal drawing size: 400 wide, 460 tall. -->
+      <svg id="bouquet" viewBox="0 0 400 460" role="img"
+           aria-label="A bouquet of flowers"></svg>
+    </div>
+
+    <!-- THE LETTER: greeting, paragraphs (added by script.js), sign-off.
+         It starts hidden and slides in after the bouquet appears. -->
+    <article class="letter" id="letter">
+      <!-- The text scrolls INSIDE this box when the letter is long.
+           tabindex="0" lets keyboard users scroll it with the arrow keys. -->
+      <div class="letter-scroll" id="letter-scroll" tabindex="0">
+        <p class="to" id="to"></p>
+        <div id="msg"></div>
+        <p class="from" id="from"></p>
+      </div>
+      <!-- A fade and hint shown at the bottom while there is more to read -->
+      <div class="fade" id="fade" aria-hidden="true">&#8595; keep reading</div>
+    </article>
+  </main>
+
+  <!-- Step 2 of linking: load the script at the END of <body>, so all the
+       elements above already exist when the script looks for them. -->
+  <script src="script.js"></script>
+</body>
+</html>
