@@ -1,0 +1,259 @@
+/* ============================================================
+   1. COLORS AS VARIABLES
+   Define colors once here, reuse them with var(--name).
+   The page is dark, like a glowing bouquet on a night background.
+   To re-theme the whole page, change only these lines.
+   ============================================================ */
+:root {
+  --bg-top: #000000;
+  --bg-bottom: #170c22;
+  --ink: #f3e9f7;      /* text color */
+  --card: #1b1326;     /* letter background */
+  --accent: #e6a8f2;
+  --box: #b5527f;      /* gift box color */
+  --ribbon: #efe6c8;   /* gift ribbon color */
+  color-scheme: dark;
+}
+
+/* ============================================================
+   2. PAGE BASICS
+   ============================================================ */
+html, body { height: 100%; margin: 0; }
+
+body {
+  background: linear-gradient(160deg, var(--bg-top), var(--bg-bottom));
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+  overflow: hidden;   /* hearts leaving the screen must not cause scrollbars */
+}
+
+/* ============================================================
+   3. FLOATING HEARTS
+   Each heart is a tiny element that script.js creates.
+   The animation moves it up the screen and fades it out.
+   ============================================================ */
+#hearts {
+  position: fixed;
+  inset: 0;                 /* shorthand for top/right/bottom/left: 0 */
+  pointer-events: none;     /* clicks pass through to what's underneath */
+  overflow: hidden;
+}
+
+.heart {
+  position: absolute;
+  bottom: -40px;            /* start just below the screen */
+  opacity: 0;
+  animation: rise linear forwards;  /* duration is set per heart in JS */
+}
+
+/* @keyframes describes the animation from 0% (start) to 100% (end).
+   --drift is a variable that JS sets differently on each heart,
+   so every heart wobbles sideways by a different amount. */
+@keyframes rise {
+  0%   { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  12%  { opacity: 0.85; }
+  100% { transform: translate(var(--drift), -115vh) scale(1.15); opacity: 0; }
+}
+
+/* ============================================================
+   4. THE GIFT BOX
+   ============================================================ */
+#gift {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border: 0;
+  background: none;         /* remove the default button look */
+  color: inherit;
+  font: inherit;
+  display: flex;            /* flexbox: stack children and center them */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  cursor: pointer;
+}
+
+/* Keyboard users see an outline when they Tab to the button. Keep this! */
+#gift:focus-visible { outline: 3px solid var(--accent); outline-offset: -8px; }
+
+.box { width: 150px; animation: bob 2.4s ease-in-out infinite; }
+
+/* The ribbon is a gradient: box color, then pale pink stripe, then box color. */
+.lid, .base {
+  background: linear-gradient(90deg,
+    var(--box) 44%, var(--ribbon) 44% 56%, var(--box) 56%);
+}
+.lid {
+  height: 38px; width: 170px; margin-left: -10px; border-radius: 8px;
+  transition: transform 0.8s cubic-bezier(0.3, 1.4, 0.5, 1), opacity 0.8s;
+}
+.base {
+  height: 104px; border-radius: 0 0 10px 10px;
+  filter: brightness(0.88);  /* slightly darker than the lid */
+}
+
+@keyframes bob { 50% { transform: translateY(-8px) rotate(-1.5deg); } }
+
+/* JS adds the class "open" to #gift when it's clicked.
+   These rules then play the opening animation. */
+#gift.open { opacity: 0; transition: opacity 0.6s 0.5s; }
+#gift.open .box { animation: none; }
+#gift.open .lid { transform: translateY(-90px) rotate(-14deg); opacity: 0; }
+
+/* ============================================================
+   5. THE SCENE (bouquet + card)
+   ============================================================ */
+#scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;  /* with the auto margins below, content is
+                                   centered but never cut off at the top */
+  gap: 14px;
+  padding: 16px;
+  opacity: 0;               /* invisible until JS adds "show" */
+  pointer-events: none;
+  transition: opacity 1.2s;
+  overflow-y: auto;
+}
+#scene.show { opacity: 1; pointer-events: auto; }
+
+#bouquet {
+  height: min(38vh, 340px); /* vh = % of screen height; min() picks the smaller */
+  width: auto;
+  max-width: 90vw;
+  transform-origin: 50% 95%;  /* sway around the bottom, like a held bouquet */
+  animation: sway 5s ease-in-out infinite alternate;
+}
+@keyframes sway {
+  from { transform: rotate(-1.6deg); }
+  to   { transform: rotate(1.6deg); }
+}
+
+/* JS toggles this class on every beat for a small "pulse". */
+#bouquet-wrap.pulse { animation: pulse 0.5s ease-out; }
+@keyframes pulse { 40% { transform: scale(1.045); } }
+
+/* margin: auto on the first and last child centers the content when it
+   fits, and lets it scroll from the top when it doesn't. */
+#scene > :first-child { margin-top: auto; }
+#scene > :last-child  { margin-bottom: auto; }
+
+/* ============================================================
+   THE LETTER
+   Starts invisible and shifted down; JS adds the class "in"
+   a moment after the bouquet appears, and the transition slides it up.
+   ============================================================ */
+.letter {
+  max-width: 340px;
+  width: 100%;
+  box-sizing: border-box;   /* padding counts inside the width */
+  background: var(--card);
+  border-radius: 6px;
+  border-top: 4px solid var(--accent);
+  position: relative;
+  overflow: hidden;         /* keeps the scroll area inside the rounded corners */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 40px rgba(197, 140, 240, 0.12);
+  opacity: 0;
+  transform: translateY(40px) rotate(-1deg);
+  transition: opacity 1s, transform 1s;
+}
+.letter.in { opacity: 1; transform: none; }
+
+/* LONG LETTERS
+   The text area gets a maximum height. Shorter letters just fit; longer
+   letters scroll inside this box, so the bouquet stays on screen.
+   vh = % of the screen height, so it adapts to small and large phones. */
+.letter-scroll {
+  max-height: min(44vh, 420px);
+  overflow-y: auto;
+  padding: 22px 24px;
+  overscroll-behavior: contain;      /* scrolling the letter doesn't scroll the page */
+  -webkit-overflow-scrolling: touch; /* smooth scrolling on older iPhones */
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) transparent;
+}
+.letter-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
+
+/* The fade at the bottom. JS adds the class "more" to .letter
+   whenever there is still text below the visible part. */
+.fade {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 52px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 6px;
+  box-sizing: border-box;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--accent);
+  background: linear-gradient(to bottom, transparent, var(--card) 70%);
+  pointer-events: none;              /* taps pass through to the text */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.letter.more .fade { opacity: 1; }
+
+.to   { font-size: 1.35rem; font-style: italic; margin: 0 0 10px; }
+#msg p { margin: 0 0 12px; line-height: 1.6; font-size: 1.05rem; }
+.from { margin: 6px 0 0; font-style: italic; color: var(--accent); text-align: right; }
+
+/* ============================================================
+   THE FLOWER BURST
+   JS creates small flower elements at the gift box. Each one flies
+   to its own spot (--dx, --dy), spins (--rot), then falls and fades.
+   ============================================================ */
+#burst {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 3;               /* above the hearts and the scene */
+}
+.bf {
+  position: absolute;
+  width: var(--s);
+  height: var(--s);
+  margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2); /* center on the point */
+  opacity: 0;
+  animation: burst 3.4s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+.bf svg { width: 100%; height: 100%; }
+@keyframes burst {
+  /* 0-35%: fly out from the box to the landing spot (the screen fills up)
+     35-75%: hang there and drift slightly, so the screen stays full
+     75-100%: fall a little and fade away, revealing the bouquet */
+  0%   { transform: translate(0, 0) scale(0.2) rotate(0deg); opacity: 0; }
+  10%  { opacity: 1; }
+  35%  { transform: translate(var(--dx), var(--dy)) scale(1) rotate(var(--rot)); opacity: 1; }
+  75%  { transform: translate(var(--dx), calc(var(--dy) + 30px))
+                    scale(1.05) rotate(calc(var(--rot) * 1.1)); opacity: 1; }
+  100% { transform: translate(var(--dx), calc(var(--dy) + 120px))
+                    scale(0.9) rotate(calc(var(--rot) * 1.3)); opacity: 0; }
+}
+
+/* ============================================================
+   6. MUTE BUTTON
+   ============================================================ */
+#mute {
+  position: fixed; top: 12px; right: 14px;
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 0; background: var(--card); font-size: 1.2rem; cursor: pointer;
+  display: none;            /* JS shows it after the gift opens */
+  z-index: 5;
+}
+#mute:focus-visible { outline: 3px solid var(--accent); }
+
+/* ============================================================
+   7. RESPECT PEOPLE WHO DISLIKE MOTION
+   Their device tells the browser; we calm things down.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  #bouquet, .box { animation: none; }
+  .heart { animation-duration: 12s !important; }
+}
