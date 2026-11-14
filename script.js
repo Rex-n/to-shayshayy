@@ -13,7 +13,7 @@ const SETTINGS = {
   letter: [
     "Happy 8th monthsary, shayshayy!!!.",
     "Layo nakay ta hehe. I know ga balik2 nagyud nis akong letter pero thankful gyud kay ko sa imo shyyy.",
-    "Thank you sa always pag sabot sa ako kanang ga overthink ko HAHAHA, sa pag hatag nimog time bisag busy kay ka,  for existing,.",
+    "Thank you sa always pag sabot sa ako kanang ga overthink ko HAHAHA, sa pag hatag nimog time bisag busy kay ka,  for existing,",
     " and sa daghan pa kaayo nga butang, Thank youuu💛. Thankyou Thankyou ang babait ninyo HAHAHAHAHAH Christmas ID 🧶..",
     " Bitaw, I LOVE YOU SO MUCH!! Shiloh Batumbakal! 🫶🏾🫶🏾🫶🏾.."
 
